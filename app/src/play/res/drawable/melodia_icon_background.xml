@@ -13,8 +13,19 @@
                 android:startY="0"
                 android:endX="108"
                 android:endY="108"
-                android:startColor="#FF9ADCFF"
-                android:endColor="#FF4AB3EE" />
+                android:startColor="#FFB3E5FF"
+                android:endColor="#FF5AB4F2" />
+        </aapt:attr>
+    </path>
+    <path android:pathData="M0,0h108v108h-108z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="radial"
+                android:centerX="27"
+                android:centerY="21.6"
+                android:gradientRadius="75.6"
+                android:startColor="#59FFFFFF"
+                android:endColor="#00FFFFFF" />
         </aapt:attr>
     </path>
 </vector>
