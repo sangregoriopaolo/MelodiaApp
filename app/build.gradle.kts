@@ -21,6 +21,12 @@ val debugKeystorePassword = System.getenv("METROLIST_DEBUG_KEYSTORE_PASSWORD")?.
 val debugKeyAlias = System.getenv("METROLIST_DEBUG_KEY_ALIAS")?.takeIf { it.isNotBlank() } ?: "androiddebugkey"
 val debugKeyPassword = System.getenv("METROLIST_DEBUG_KEY_PASSWORD")?.takeIf { it.isNotBlank() } ?: "android"
 val persistentDebugKeystoreFile = file("persistent-debug.keystore")
+
+// MelodiaApp: Play Store build. The upload key never lives in the repo; CI decodes it from secrets.
+val playApplicationId = "io.github.sangregoriopaolo.melodiaapp"
+val playAppName = "MelodiaApp"
+val versionCodeOverride = System.getenv("MELODIA_VERSION_CODE")?.toIntOrNull()
+val uploadKeystorePath = System.getenv("MELODIA_UPLOAD_KEYSTORE_PATH")?.takeIf { it.isNotBlank() }
 val workflowDebugKeystoreFile = debugKeystorePathOverride?.let(::file)
 
 plugins {
@@ -41,6 +47,7 @@ android {
         minSdk = 26
         targetSdk = 36
         versionCode = 153
+        versionCodeOverride?.let { versionCode = it }
         versionName = "13.7.0"
         val baseVersionName = requireNotNull(versionName)
         buildConfigField("String", "BASE_VERSION_NAME", "\"$baseVersionName\"")
@@ -81,6 +88,15 @@ android {
             buildConfigField("Boolean", "UPDATER_AVAILABLE", "true")
         }
 
+        // Play - gcast, no self-updater (Play policy forbids updating outside the store)
+        create("play") {
+            dimension = "variant"
+            applicationId = applicationIdOverride ?: playApplicationId
+            resValue("string", "app_name", appNameOverride ?: playAppName)
+            buildConfigField("Boolean", "CAST_AVAILABLE", "true")
+            buildConfigField("Boolean", "UPDATER_AVAILABLE", "false")
+        }
+
         // IzzyOnDroid - no gcast, no updater - the ONLY F-droid compliant build
         create("izzy") {
             dimension = "variant"
@@ -108,6 +124,14 @@ android {
             keyAlias = System.getenv("KEY_ALIAS")
             keyPassword = System.getenv("KEY_PASSWORD")
         }
+        if (uploadKeystorePath != null) {
+            create("playUpload") {
+                storeFile = file(uploadKeystorePath)
+                storePassword = System.getenv("MELODIA_UPLOAD_STORE_PASSWORD")
+                keyAlias = System.getenv("MELODIA_UPLOAD_KEY_ALIAS")
+                keyPassword = System.getenv("MELODIA_UPLOAD_KEY_PASSWORD")
+            }
+        }
         getByName("debug") {
             keyAlias = "androiddebugkey"
             keyPassword = "android"
@@ -115,6 +139,8 @@ android {
             storeFile = file("${System.getProperty("user.home")}/.android/debug.keystore")
         }
     }
+
+    productFlavors.getByName("play").signingConfig = signingConfigs.findByName("playUpload")
 
     buildTypes {
         release {
@@ -143,6 +169,12 @@ android {
                 } else {
                     signingConfigs.getByName("debug")
                 }
+        }
+    }
+
+    sourceSets {
+        getByName("play") {
+            kotlin.srcDir("src/gms/kotlin")
         }
     }
 
@@ -290,6 +322,9 @@ dependencies {
     "gmsImplementation"(libs.media3.cast)
     "gmsImplementation"(libs.mediarouter)
     "gmsImplementation"(libs.cast.framework)
+    "playImplementation"(libs.media3.cast)
+    "playImplementation"(libs.mediarouter)
+    "playImplementation"(libs.cast.framework)
 
     implementation(libs.room.runtime)
     implementation(libs.kuromoji.ipadic)
