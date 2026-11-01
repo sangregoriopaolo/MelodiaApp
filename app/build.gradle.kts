@@ -24,7 +24,7 @@ val persistentDebugKeystoreFile = file("persistent-debug.keystore")
 
 // MelodiaApp: Play Store build. The upload key never lives in the repo; CI decodes it from secrets.
 val playApplicationId = "io.github.sangregoriopaolo.melodiaapp"
-val playAppName = "MelodiaApp"
+val playAppName = "Melodia"
 val versionCodeOverride = System.getenv("MELODIA_VERSION_CODE")?.toIntOrNull()
 val uploadKeystorePath = System.getenv("MELODIA_UPLOAD_KEYSTORE_PATH")?.takeIf { it.isNotBlank() }
 val workflowDebugKeystoreFile = debugKeystorePathOverride?.let(::file)
