@@ -50,9 +50,9 @@ jobs:
       - name: Build Play release bundle
         run: |
           chmod +x gradlew
+          export MELODIA_VERSION_CODE=$((10000 + GITHUB_RUN_NUMBER))
           ./gradlew --console=plain :app:bundlePlayRelease --warning-mode summary
         env:
-          MELODIA_VERSION_CODE: ${{ 10000 + github.run_number }}
           MELODIA_UPLOAD_KEYSTORE_PATH: ${{ steps.keystore.outputs.path }}
           MELODIA_UPLOAD_STORE_PASSWORD: ${{ secrets.UPLOAD_STORE_PASSWORD }}
           MELODIA_UPLOAD_KEY_ALIAS: ${{ secrets.UPLOAD_KEY_ALIAS }}
