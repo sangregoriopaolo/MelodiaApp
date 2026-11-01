@@ -18,6 +18,8 @@ jobs:
   bundle:
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    env:
+      HAS_PLAY_SERVICE_ACCOUNT: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON != '' }}
 
     steps:
       - uses: actions/checkout@v7
@@ -77,3 +79,19 @@ jobs:
           name: MelodiaApp-play-mapping-${{ github.run_number }}
           path: app/build/outputs/mapping/playRelease/mapping.txt
           if-no-files-found: warn
+
+      # Only main publishes; PR builds stop at the artifact.
+      - name: Upload to Play internal testing
+        if: >-
+          github.event_name != 'pull_request' &&
+          github.ref == 'refs/heads/main' &&
+          steps.keystore.outputs.signed == 'true' &&
+          env.HAS_PLAY_SERVICE_ACCOUNT == 'true'
+        uses: r0adkll/upload-google-play@v1.1.3
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: io.github.sangregoriopaolo.melodiaapp
+          releaseFiles: app/build/outputs/bundle/playRelease/*.aab
+          mappingFile: app/build/outputs/mapping/playRelease/mapping.txt
+          track: internal
+          status: completed
