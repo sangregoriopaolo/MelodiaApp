@@ -2043,4 +2043,29 @@ interface DatabaseDao {
 
     @Delete
     fun delete(podcast: PodcastEntity)
+
+    // Melodia Sync: every Melodia-only playlist (no YouTube browseId) with its songs in order.
+    // Songs from local files are left out because other phones cannot play them.
+    @Query(MELODIA_SYNC_ROWS_QUERY)
+    fun melodiaSyncRows(): Flow<List<MelodiaSyncRow>>
+
+    @Query(MELODIA_SYNC_ROWS_QUERY)
+    fun melodiaSyncRowsBlocking(): List<MelodiaSyncRow>
 }
+
+const val MELODIA_SYNC_ROWS_QUERY = """
+    SELECT p.id AS playlistId, p.name AS name, m.songId AS songId
+    FROM playlist p
+    LEFT JOIN playlist_song_map m ON m.playlistId = p.id
+    LEFT JOIN song s ON s.id = m.songId
+    WHERE p.browseId IS NULL AND p.isEditable = 1
+        AND p.id NOT IN ('LP_LIKED', 'LP_DOWNLOADED', 'LP_WEEKLY_MOST', 'LP_MONTHLY_MOST')
+        AND (m.songId IS NULL OR s.isLocal = 0)
+    ORDER BY p.id, m.position, m.id
+"""
+
+data class MelodiaSyncRow(
+    val playlistId: String,
+    val name: String,
+    val songId: String?,
+)

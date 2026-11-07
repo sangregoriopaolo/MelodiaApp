@@ -392,6 +392,10 @@ fun NavGraphBuilder.navigationBuilder(
         DiscordSettings(navController)
     }
 
+    composable("settings/integrations/melodia_sync") {
+        com.metrolist.music.ui.screens.settings.integrations.MelodiaSyncSettings(navController)
+    }
+
     composable("settings/integrations/lastfm") {
         LastFMSettings(navController)
     }
