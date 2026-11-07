@@ -3132,6 +3132,47 @@ class MusicService :
     }
 
     /**
+     * Drops one song's streamed audio from the player cache (and its cached stream URL) so the
+     * next play fetches it fresh. Used to repair a song whose cached file got corrupted.
+     * Downloads are left alone. If the song is playing, it is reloaded at the same position.
+     * Must be called on the main thread.
+     */
+    fun recacheSong(mediaId: String) {
+        songUrlCache.invalidate(mediaId)
+
+        val isCurrent = ::player.isInitialized && player.currentMediaItem?.mediaId == mediaId
+        if (!isCurrent) {
+            scope.launch(Dispatchers.IO) {
+                try {
+                    playerCache.removeResource(mediaId)
+                } catch (e: Exception) {
+                    Timber.tag(TAG).e(e, "recacheSong: failed to clear player cache")
+                }
+            }
+            return
+        }
+
+        val currentIndex = player.currentMediaItemIndex
+        val currentPosition = player.currentPosition
+        val wasPlaying = player.isPlaying
+
+        // Stop first so the player releases its read locks on the cached spans.
+        player.stop()
+        runBlocking(Dispatchers.IO) {
+            try {
+                playerCache.removeResource(mediaId)
+            } catch (e: Exception) {
+                Timber.tag(TAG).e(e, "recacheSong: failed to clear player cache")
+            }
+        }
+        player.seekTo(currentIndex, currentPosition)
+        player.prepare()
+        if (wasPlaying) {
+            player.play()
+        }
+    }
+
+    /**
      * Performs aggressive cache clearing for a media item.
      * Clears both player cache and download cache, plus URL cache.
      */

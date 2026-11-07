@@ -432,6 +432,9 @@
     <string name="download_desc">Download for offline playback</string>
     <string name="add_to_playlist_desc">Add to a playlist</string>
     <string name="refetch_desc">Refresh metadata from YouTube Music</string>
+    <string name="recache">Re-cache</string>
+    <string name="recache_desc">Delete this song\'s cached audio and fetch it again</string>
+    <string name="recache_done">Cached audio removed. It will be fetched again on next play</string>
     <string name="share_desc">Share a link to this item</string>
     <string name="delete_desc">Permanently remove this item</string>
     <string name="advanced_desc">Adjust the song\'s tempo and pitch</string>
