@@ -5,7 +5,16 @@ on:
   push:
     branches:
       - "main"
+    # Server-only changes must not ship a new app build to Play.
+    paths-ignore:
+      - "server/**"
+      - "docs/**"
+      - ".github/workflows/server.yml"
   pull_request:
+    paths-ignore:
+      - "server/**"
+      - "docs/**"
+      - ".github/workflows/server.yml"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
