@@ -42,6 +42,11 @@ fun IntegrationScreen(
             title = stringResource(R.string.general),
             items = listOf(
                 IntegrationCardItem(
+                    icon = painterResource(R.drawable.sync),
+                    title = { Text("Melodia Sync") },
+                    onClick = { navController.navigate("settings/integrations/melodia_sync") }
+                ),
+                IntegrationCardItem(
                     icon = painterResource(R.drawable.discord),
                     title = { Text(stringResource(R.string.discord_integration)) },
                     onClick = { navController.navigate("settings/integrations/discord") }

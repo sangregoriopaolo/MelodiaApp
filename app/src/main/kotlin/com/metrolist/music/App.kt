@@ -66,6 +66,9 @@ class App :
     @ApplicationScope
     lateinit var applicationScope: CoroutineScope
 
+    @Inject
+    lateinit var melodiaSync: com.metrolist.music.melodiasync.MelodiaSync
+
     override fun onCreate() {
         super.onCreate()
 
@@ -114,6 +117,9 @@ class App :
 
             observeSettingsChanges()
         }
+
+        // Melodia Sync: playlist sync with the self-hosted server (no-op until the user logs in).
+        melodiaSync.start()
     }
 
     private suspend fun initializeSettings() {
