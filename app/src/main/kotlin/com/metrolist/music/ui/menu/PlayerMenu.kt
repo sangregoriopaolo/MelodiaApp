@@ -673,6 +673,27 @@ fun PlayerMenu(
                             ),
                         )
 
+                        if (download?.state != Download.STATE_COMPLETED) {
+                            add(
+                                Material3MenuItemData(
+                                    title = { Text(text = stringResource(R.string.recache)) },
+                                    description = { Text(text = stringResource(R.string.recache_desc)) },
+                                    icon = {
+                                        Icon(
+                                            painter = painterResource(R.drawable.cached),
+                                            contentDescription = null,
+                                            modifier = Modifier.size(24.dp),
+                                        )
+                                    },
+                                    onClick = {
+                                        playerConnection.service.recacheSong(mediaMetadata.id)
+                                        Toast.makeText(context, R.string.recache_done, Toast.LENGTH_SHORT).show()
+                                        onDismiss()
+                                    },
+                                ),
+                            )
+                        }
+
                         if (isQueueTrigger != true) {
                             add(
                                 Material3MenuItemData(
