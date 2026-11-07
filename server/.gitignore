@@ -1,0 +1,4 @@
+/melodia-sync
+*.db
+*.db-shm
+*.db-wal
